@@ -1,12 +1,4 @@
---[[
-    Oxy Game Loader (Luau)
-    -------------------------------------------------------------
-    Host this file on GitHub (raw) and point the main UI's
-    GAME_LOADER_URL at it. When the key is valid the UI runs this,
-    which detects the current game (PlaceId) and loads its script.
 
-    This is the normal-Luau replacement for the old games.json.
---]]
 
 local MarketplaceService = game:GetService("MarketplaceService")
 local TweenService        = game:GetService("TweenService")
