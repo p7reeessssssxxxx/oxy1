@@ -1,4 +1,12 @@
+--[[
+    Oxy Game Loader (Luau)
+    -------------------------------------------------------------
+    Host this file on GitHub (raw) and point the main UI's
+    GAME_LOADER_URL at it. When the key is valid the UI runs this,
+    which detects the current game (PlaceId) and loads its script.
 
+    This is the normal-Luau replacement for the old games.json.
+--]]
 
 local MarketplaceService = game:GetService("MarketplaceService")
 local TweenService        = game:GetService("TweenService")
@@ -8,7 +16,7 @@ local CoreGui             = game:GetService("CoreGui")
 -- ─────────────────────────────────────────
 -- META
 -- ─────────────────────────────────────────
-local VERSION        = "4.0.8"
+local VERSION        = "1"
 local LAST_UPDATED   = "2026-04-30"
 local UPDATE_MESSAGE = "added AOT Revolution games"
 
@@ -189,25 +197,40 @@ local function notify(title, message)
         msgLbl.TextTransparency = 1
         msgLbl.ZIndex = 3
 
-        -- Close button
+        -- Close button.
+        -- The clickable TextButton is transparent; the gradient lives on a child Frame
+        -- and the label is separate, so the gradient never tints (hides) the text.
         local btn = Instance.new("TextButton", box)
         btn.AnchorPoint = Vector2.new(0.5, 1)
         btn.Position = UDim2.new(0.5, 0, 1, -18)
         btn.Size = UDim2.fromOffset(320, 36)
         btn.AutoButtonColor = false
-        btn.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-        btn.Font = Enum.Font.GothamBold
-        btn.TextSize = 14
-        btn.TextColor3 = Color3.fromRGB(255, 255, 255)
-        btn.Text = "Close UI (" .. POPUP_COUNTDOWN .. ")"
         btn.BackgroundTransparency = 1
-        btn.TextTransparency = 1
+        btn.Text = ""
         btn.BorderSizePixel = 0
         btn.Active = false
-        btn.AutoButtonColor = false
         btn.ZIndex = 3
         Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 8)
-        local btnGrad = Instance.new("UIGradient", btn)
+
+        local btnBg = Instance.new("Frame", btn)
+        btnBg.Size = UDim2.fromScale(1, 1)
+        btnBg.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+        btnBg.BackgroundTransparency = 1
+        btnBg.BorderSizePixel = 0
+        btnBg.ZIndex = 3
+        Instance.new("UICorner", btnBg).CornerRadius = UDim.new(0, 8)
+        local btnGrad = Instance.new("UIGradient", btnBg)
+
+        local btnText = Instance.new("TextLabel", btn)
+        btnText.BackgroundTransparency = 1
+        btnText.Size = UDim2.fromScale(1, 1)
+        btnText.Font = Enum.Font.GothamBold
+        btnText.TextSize = 14
+        btnText.TextColor3 = Color3.fromRGB(255, 255, 255)
+        btnText.Text = "Close UI (" .. POPUP_COUNTDOWN .. ")"
+        btnText.TextTransparency = 1
+        btnText.BorderSizePixel = 0
+        btnText.ZIndex = 4
 
         -- Animate all gradients (blue <-> purple, spinning) until destroyed
         local alive = true
@@ -243,7 +266,8 @@ local function notify(title, message)
         tween(liner, 0.4, { BackgroundTransparency = 0 })
         tween(msgLbl, 0.4, { TextTransparency = 0 })
         -- Button shows greyed out (semi-transparent) during countdown
-        tween(btn, 0.4, { BackgroundTransparency = 0.55, TextTransparency = 0.4 })
+        tween(btnBg, 0.4, { BackgroundTransparency = 0.55 })
+        tween(btnText, 0.4, { TextTransparency = 0.4 })
 
         -- Countdown then enable
         local clicked = false
@@ -257,7 +281,8 @@ local function notify(title, message)
             tween(titleLbl, 0.25, { TextTransparency = 1 })
             tween(liner, 0.25, { BackgroundTransparency = 1 })
             tween(msgLbl, 0.25, { TextTransparency = 1 })
-            tween(btn, 0.25, { TextTransparency = 1, BackgroundTransparency = 1 })
+            tween(btnBg, 0.25, { BackgroundTransparency = 1 })
+            tween(btnText, 0.25, { TextTransparency = 1 })
             task.wait(0.4)
             alive = false
             if conn then conn:Disconnect() end
@@ -271,13 +296,17 @@ local function notify(title, message)
 
         task.spawn(function()
             for remaining = POPUP_COUNTDOWN, 1, -1 do
-                btn.Text = "Close UI (" .. remaining .. ")"
+                btnText.Text = "Close UI (" .. remaining .. ")"
                 task.wait(1)
             end
-            -- Enable: full opacity + clickable
+            -- Enable: full opacity + clickable, with a little pop
             btn.Active = true
-            btn.Text = "Close UI"
-            tween(btn, 0.3, { BackgroundTransparency = 0, TextTransparency = 0 })
+            btnText.Text = "Close UI"
+            tween(btnBg, 0.3, { BackgroundTransparency = 0 })
+            tween(btnText, 0.3, { TextTransparency = 0 })
+            -- quick pop to signal it's now clickable
+            btn.Size = UDim2.fromOffset(300, 32)
+            tween(btn, 0.4, { Size = UDim2.fromOffset(320, 36) }, Enum.EasingStyle.Back)
         end)
     end)
 end
