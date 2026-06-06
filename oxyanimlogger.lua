@@ -1,3 +1,21 @@
+
+--[[
+	oxy Animation Logger
+	Version: 2.1.1
+	
+	Changelog (2.1.1):
+	- Added loading UI with animated progress bar that expands into main UI
+	- Fixed ~5 second game freeze by deferring entity tracking with batch processing
+	- File cache now enabled by default for faster subsequent loads
+	- Fixed grid floor not showing on preview window open
+	- Migrated all IB_* macros to LPH_* (Luraph compatibility)
+	
+	Previous (2.0.1):
+	- Added caching for animation name lookups and full path lookups
+	- Fixed constant lag
+]]
+
+
 local table_insert = table.insert
 local table_concat = table.concat
 local string_match = string.match
@@ -11,6 +29,7 @@ local ipairs = ipairs
 local pairs = pairs
 local next = next
 local type = type
+
 
 if not LPH_OBFUSCATED then
 	LPH_OBFUSCATED = false
@@ -407,6 +426,40 @@ local function getAnimationFullPath(animationId)
 end
 
 
+
+
+-- oxy perf: index every Animation once (kills per-id descendant scans = the lag)
+task.spawn(function()
+	local locs = { { Workspace, "Workspace" }, { ReplicatedStorage, "ReplicatedStorage" } }
+	local processed = 0
+	for _, pair in ipairs(locs) do
+		local loc, locName = pair[1], pair[2]
+		for _, desc in ipairs(loc:GetDescendants()) do
+			if desc:IsA("Animation") then
+				local nid = getNumericId(desc.AnimationId)
+				if nid then
+					if animationNameCache[nid] == nil then
+						local nm = desc.Name
+						local parentName
+						if desc.Parent and desc.Parent ~= loc then parentName = desc.Parent.Name end
+						if nm and nm ~= "" and nm ~= "Animation" then
+							animationNameCache[nid] = { name = nm, parent = parentName, location = locName }
+						end
+					end
+					if animationPathCache[nid] == nil then
+						local parts, cur, c = {}, desc, 0
+						while cur and cur ~= loc do c += 1; parts[c] = cur.Name; cur = cur.Parent end
+						local rev = {}
+						for i = c, 1, -1 do rev[#rev + 1] = parts[i] end
+						animationPathCache[nid] = locName .. "." .. table_concat(rev, ".")
+					end
+				end
+			end
+			processed += 1
+			if processed % 4000 == 0 then task.wait() end   -- yield, no freeze
+		end
+	end
+end)
 
 local function getConsistentAnimName(baseName, parentName, includeParent)
 	local name = baseName or "Unknown"
@@ -4877,32 +4930,21 @@ end)
 
 
 -- ================================================
---  oxy bridge  (feeds the oxy hub Auto Parry tab)
---  Lives in the same chunk, so it can read the logger's
---  locals: parryTable, findAnimationName, getNumericId, etc.
+--  oxy bridge  (feeds the oxy hub Auto Parry tab) - event driven, low cost
 -- ================================================
 do
 	local g = (getgenv and getgenv()) or _G
 	g.oxy_SeenAnims = g.oxy_SeenAnims or {}
-	g.oxy_LastAnim = g.oxy_LastAnim
-
-	-- live visual parry table (animId -> { Name, Timings = {{time=..}}, Dodge })
-	g.oxy_GetParryTable = function()
-		return parryTable
-	end
+	g.oxy_GetParryTable = function() return parryTable end
 
 	local hooked = setmetatable({}, { __mode = "k" })
 	local function feed(track)
-		local anim = track and track.Animation
-		local id = anim and anim.AnimationId
+		local id = track and track.Animation and track.Animation.AnimationId
 		if not id or id == "" then return end
-		local num = getNumericId(id)
-		if not num then return end
+		local num = getNumericId(id); if not num then return end
 		if not g.oxy_SeenAnims[num] then
-			local ok, nm = pcall(function()
-				return findAnimationName(id) or fetchAnimationNameFromAsset(id)
-			end)
-			g.oxy_SeenAnims[num] = (ok and nm) or num
+			local c = animationNameCache[num]          -- cache only, never scans
+			g.oxy_SeenAnims[num] = (c and c.name) or num
 		end
 		g.oxy_LastAnim = num
 	end
@@ -4911,13 +4953,19 @@ do
 		hooked[hum] = true
 		pcall(function() hum.AnimationPlayed:Connect(feed) end)
 	end
-	task.spawn(function()
-		while true do
-			for _, d in ipairs(Workspace:GetDescendants()) do
-				if d:IsA("Humanoid") then hook(d) end
-			end
-			task.wait(3)
-		end
-	end)
-	pcall(function() Notify("oxy", "Bridge active - feeding the Auto Parry builder", 4) end)
+	local function hookModel(m)
+		local h = m and m:FindFirstChildOfClass("Humanoid")
+		if h then hook(h) end
+	end
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p.Character then hookModel(p.Character) end
+		p.CharacterAdded:Connect(hookModel)
+	end
+	Players.PlayerAdded:Connect(function(p) p.CharacterAdded:Connect(hookModel) end)
+	local living = Workspace:FindFirstChild("Living")
+	if living then
+		for _, m in ipairs(living:GetChildren()) do hookModel(m) end
+		living.ChildAdded:Connect(function(m) task.defer(hookModel, m) end)
+	end
+	pcall(function() Notify("oxy", "Bridge active - feeding the Auto Parry builder", 3) end)
 end
