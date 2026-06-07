@@ -456,7 +456,7 @@ task.spawn(function()
 				end
 			end
 			processed += 1
-			if processed % 4000 == 0 then task.wait() end   -- yield, no freeze
+			if processed % 4000 == 0 then task.wait() end
 		end
 	end
 end)
@@ -777,6 +777,7 @@ ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Global
 ScreenGui.DisplayOrder = LPH_ENCNUM(999)
 ScreenGui.ResetOnSpawn = false
 ScreenGui.Parent = CoreGui
+ScreenGui.Enabled = false  -- oxy: start hidden
 
 _G[OXY_IDENTIFIER] = {
 	ScreenGui = ScreenGui,
@@ -885,7 +886,7 @@ task.wait()
 
 
 local UI_TOGGLE_KEY = Enum.KeyCode.RightControl
-local isUIVisible = true
+local isUIVisible = false  -- oxy: start hidden
 
 TrackConnection(UserInputService.InputBegan:Connect(function(input, processed)
 	if processed then return end
@@ -894,6 +895,7 @@ TrackConnection(UserInputService.InputBegan:Connect(function(input, processed)
 		if UI and UI.Outer then
 			UI.Outer.Visible = isUIVisible
 		end
+		ScreenGui.Enabled = isUIVisible  -- oxy: show/hide whole gui
 	end
 end))
 
@@ -2341,6 +2343,7 @@ do
 	
 	Controls.AddMarkerBtn = createGridBtn("AddMarker", "+ Parry", Color3.fromRGB(0, 255, 100), false)
 	Controls.AddDodgeBtn = createGridBtn("AddDodge", "+ Dodge", Color3.fromRGB(255, 180, 0), false)
+	Controls.AddRedBtn = createGridBtn("AddRed", "+ Red", Color3.fromRGB(190, 60, 255), false)
 	Controls.ClearMarkersBtn = createGridBtn("Clear", "Clear", Color3.fromRGB(255, 100, 100), false)
 	Controls.ExportMarkersBtn = createGridBtn("Export", "Export", Colors.AccentColor, false)
 	Controls.AddToTableBtn = createGridBtn("AddTable", "+ Table", Color3.fromRGB(100, 200, 255), false)
@@ -2416,6 +2419,7 @@ local selectedMarker = nil
 local MARKER_TYPES = {
 	{name = "Parry", color = Color3.fromRGB(0, 255, 100)},
 	{name = "Dodge", color = Color3.fromRGB(255, 180, 0)},
+	{name = "Red Counter", color = Color3.fromRGB(190, 60, 255)},
 }
 local parryTable = {} 
 local isParryTableVisible = false
@@ -2812,6 +2816,7 @@ local function addToParryTable()
 	
 	
 	local hasDodge = false
+	local hasRed = false
 	local timings = {}
 	local timingCount = 0
 	for _, marker in markers do
@@ -2819,6 +2824,8 @@ local function addToParryTable()
 		timings[timingCount] = {time = marker.time, type = marker.type}
 		if marker.type == "Dodge" then
 			hasDodge = true
+		elseif marker.type == "Red Counter" then
+			hasRed = true
 		end
 	end
 	
@@ -2826,7 +2833,8 @@ local function addToParryTable()
 		Name = animName,
 		ParentName = parentName,
 		Timings = timings,
-		Dodge = hasDodge
+		Dodge = hasDodge,
+		RedCounter = hasRed
 	}
 	
 	updateTableCountLabel()
@@ -4249,6 +4257,10 @@ TrackConnection(Controls.AddDodgeBtn.MouseButton1Click:Connect(function()
 	addMarkerOfType("Dodge")
 end))
 
+TrackConnection(Controls.AddRedBtn.MouseButton1Click:Connect(function()
+	addMarkerOfType("Red Counter")
+end))
+
 
 TrackConnection(Controls.ClearMarkersBtn.MouseButton1Click:Connect(function()
 	clearAllMarkers()
@@ -4943,7 +4955,7 @@ do
 		if not id or id == "" then return end
 		local num = getNumericId(id); if not num then return end
 		if not g.oxy_SeenAnims[num] then
-			local c = animationNameCache[num]          -- cache only, never scans
+			local c = animationNameCache[num]
 			g.oxy_SeenAnims[num] = (c and c.name) or num
 		end
 		g.oxy_LastAnim = num
@@ -4967,5 +4979,4 @@ do
 		for _, m in ipairs(living:GetChildren()) do hookModel(m) end
 		living.ChildAdded:Connect(function(m) task.defer(hookModel, m) end)
 	end
-	pcall(function() Notify("oxy", "Bridge active - feeding the Auto Parry builder", 3) end)
 end
