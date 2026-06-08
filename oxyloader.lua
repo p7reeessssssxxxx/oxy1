@@ -15,45 +15,15 @@ local UPDATE_MESSAGE = "added AOT Revolution games"
 -- ─────────────────────────────────────────
 -- SHARED BASE URLS (keeps the table tidy)
 -- ─────────────────────────────────────────
-local P7_IDK    = "https://raw.githubusercontent.com/p7reeessssssxxxx/idk/refs/heads/main/"
-local P7_V3     = "https://raw.githubusercontent.com/p7reeessssssxxxx/script-v3/refs/heads/main/"
-local P7_HELLO  = "https://raw.githubusercontent.com/p7reeessssssxxxx/hello/refs/heads/main/"
-local P7_IDK2   = "https://raw.githubusercontent.com/p7reeessssxxxx/idk/refs/heads/main/"
-local P7_V3B    = "https://raw.githubusercontent.com/p7reeessssxxxx/script-v3/refs/heads/main/"
-local DIDDY     = "https://raw.githubusercontent.com/diddybludsigma/vb34/refs/heads/main/"
-local MARKUS    = "https://raw.githubusercontent.com/markusmakegu-wq/us1/refs/heads/main/"
-local DKLN      = "https://raw.githubusercontent.com/dfgkl5kubnfik5gchlindfg45/DKLNBVJKKKWEJKHCVUUCIVBUNOIUADSRT/refs/heads/main/"
-local SAILRP    = DKLN .. "SAILRP.lua"
 local AOT_REVO  = "https://api.luarmor.net/files/v4/loaders/6b07049fd40cb17cbc1b698fcf5d7e8e.lua"
 local LUARMOR_BIZ    = "https://api.luarmor.net/files/v4/loaders/447580729d1c51c1eafa48045ac2eb02.lua"
 local LUARMOR_BRIDGE = "https://api.luarmor.net/files/v4/loaders/92f99acda2ff5f0c6ff700f9f8c05fb9.lua"
+local VV             = "https://api.luarmor.net/files/v4/loaders/b691e1d7f3061c18938f4fb494c593fb.lua"
 
 -- ─────────────────────────────────────────
 -- GAME DATABASE  [PlaceId] = { name = ..., url = ... }
 -- ─────────────────────────────────────────
 local Games = {
-    [79546208627805]  = { name = "99 Nights",                          url = P7_IDK   .. "kills.lua" },
-    [75992362647444]  = { name = "Tap Simulator",                      url = P7_V3    .. "api.lua" },
-    [130247632398296] = { name = "Anime Fighting Simulator Endless",   url = P7_HELLO .. "AFSEBOI.lua" },
-    [142823291]       = { name = "Murder Mystery 2",                   url = P7_IDK   .. "mm2fent.lua" },
-    [109983668079237] = { name = "Steal a Brainrot",                   url = P7_IDK2  .. "sabFENTV5.lua" },
-    [76558904092080]  = { name = "The Forge",                          url = P7_V3B   .. "forge.lua" },
-    [10449761463]     = { name = "The Strongest Battle Ground",        url = P7_V3B   .. "423.lua" },
-    [131623223084840] = { name = "Escape Tsunami For Brainrots!",      url = DIDDY    .. "unlocvipsdalk.lua" },
-    [118637423917462] = { name = "Case Paradise",                      url = DIDDY    .. "caseparadise.lua" },
-    [130594398886540] = { name = "Garden Horizons",                    url = DIDDY    .. "gardenorzione.lua" },
-    [114234929420007] = { name = "Bloxstrike (Default)",              url = MARKUS   .. "ui" },
-    [108194354348181] = { name = "Bloxstrike (Unranked)",             url = MARKUS   .. "ui" },
-    [135434213652028] = { name = "Bloxstrike (Deathmatch)",           url = MARKUS   .. "ui" },
-    [301549746]       = { name = "Counter Blox",                       url = DKLN     .. "DFGJKBHJKJ435GBVC.lua" },
-    [70845479499574]  = { name = "[BETA] Bite By Night",               url = DKLN     .. "antienv.lua" },
-    [127794225497302] = { name = "Abyss",                              url = DKLN     .. "456hfgnvbvbctrd45e3gfhcvbbne56cbhxvvbcxndsftvxghbxvcersdt.lua" },
-    [77747658251236]  = { name = "Sailor Piece",                       url = SAILRP },
-    [75159314259063]  = { name = "shadow dungeon",                     url = SAILRP },
-    [96767841099256]  = { name = "boss rush dih",                      url = SAILRP },
-    [99684056491472]  = { name = "rune dungeon dih",                   url = SAILRP },
-    [123955125827131] = { name = "double dungeon dih",                 url = SAILRP },
-    [138368689293913] = { name = "inf tower dih",                      url = SAILRP },
     [14890802310]     = { name = "biz biz biz",                        url = LUARMOR_BIZ },
     [74747090658891]  = { name = "biz",                                url = LUARMOR_BIZ },
     [99449877692519]  = { name = "bridge western",                     url = LUARMOR_BRIDGE },
@@ -72,6 +42,32 @@ local Games = {
     [17688739434]     = { name = "AOT Revolution — Docks",             url = AOT_REVO },
     [112374853034490] = { name = "AOT Revolution — Training Grounds",  url = AOT_REVO },
     [126678335159530] = { name = "AOT Revolution — Chapel",            url = AOT_REVO },
+
+    -- VV (Bleach) — all share the same loader
+    [6270290407]      = { name = "VV: ULTIMATUM",            url = VV },
+    [9854445386]      = { name = "[ Content Deleted ]",      url = VV },
+    [9861495985]      = { name = "Inner World",              url = VV },
+    [10626511620]     = { name = "Valley of Screams",        url = VV },
+    [10627960269]     = { name = "OLD.",                     url = VV },
+    [11127942816]     = { name = "Las Noches",               url = VV },
+    [11131834995]     = { name = "Hueco Mundo",              url = VV },
+    [11780443293]     = { name = "Wandenreich",              url = VV },
+    [12337012844]     = { name = "Soul Society",             url = VV },
+    [13229243486]     = { name = "Tournament",               url = VV },
+    [14218523102]     = { name = "Soul Society Outskirts",   url = VV },
+    [14219489601]     = { name = "Human World",              url = VV },
+    [14321102147]     = { name = "Fort Adams",               url = VV },
+    [14711269481]     = { name = "Arctic Plain(OLD)",        url = VV },
+    [15079707729]     = { name = "Arctic Plains",            url = VV },
+    [15645525857]     = { name = "Arctic Cave",              url = VV },
+    [16914874220]     = { name = "Menos Forest",             url = VV },
+    [17083682617]     = { name = "The Dangai",               url = VV },
+    [18416507779]     = { name = "VV TEST ZONE",             url = VV },
+    [18972283841]     = { name = "Snow Encampment",          url = VV },
+    [95787471190312]  = { name = "The Marsh",                url = VV },
+    [102123868363969] = { name = "Trade Realm",              url = VV },
+    [121345602945775] = { name = "Matchmaking",              url = VV },
+    [132224751888154] = { name = "UPDATE PLACE",             url = VV },
 }
 
 -- ─────────────────────────────────────────
