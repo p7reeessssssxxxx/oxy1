@@ -7,10 +7,10 @@ local CoreGui             = game:GetService("CoreGui")
 local VERSION        = "1"
 local LAST_UPDATED   = "2026-04-30"
 local UPDATE_MESSAGE = "added AOT Revolution games"
-local AOT_REVO  = "https://api.luarmor.net/files/v4/loaders/6b07049fd40cb17cbc1b698fcf5d7e8e.lua"
+local AOT_REVO  = "https://api.luarmor.net/files/v4/loaders/46c01733f171c88ea0469a923bc6b45a.lua"
 local LUARMOR_BIZ    = "https://api.luarmor.net/files/v4/loaders/447580729d1c51c1eafa48045ac2eb02.lua"
 local LUARMOR_BRIDGE = "https://api.luarmor.net/files/v4/loaders/92f99acda2ff5f0c6ff700f9f8c05fb9.lua"
-local VV             = "https://api.luarmor.net/files/v4/loaders/b691e1d7f3061c18938f4fb494c593fb.lua"
+local VV             = "https://api.luarmor.net/files/v4/loaders/f8d5888da72882996377c8e4f3625c1e.lua"
 
 
 local Games = {
