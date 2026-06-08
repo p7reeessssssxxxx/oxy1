@@ -4,31 +4,20 @@ local MarketplaceService = game:GetService("MarketplaceService")
 local TweenService        = game:GetService("TweenService")
 local RunService          = game:GetService("RunService")
 local CoreGui             = game:GetService("CoreGui")
-
--- ─────────────────────────────────────────
--- META
--- ─────────────────────────────────────────
 local VERSION        = "1"
 local LAST_UPDATED   = "2026-04-30"
 local UPDATE_MESSAGE = "added AOT Revolution games"
-
--- ─────────────────────────────────────────
--- SHARED BASE URLS (keeps the table tidy)
--- ─────────────────────────────────────────
 local AOT_REVO  = "https://api.luarmor.net/files/v4/loaders/6b07049fd40cb17cbc1b698fcf5d7e8e.lua"
 local LUARMOR_BIZ    = "https://api.luarmor.net/files/v4/loaders/447580729d1c51c1eafa48045ac2eb02.lua"
 local LUARMOR_BRIDGE = "https://api.luarmor.net/files/v4/loaders/92f99acda2ff5f0c6ff700f9f8c05fb9.lua"
 local VV             = "https://api.luarmor.net/files/v4/loaders/b691e1d7f3061c18938f4fb494c593fb.lua"
 
--- ─────────────────────────────────────────
--- GAME DATABASE  [PlaceId] = { name = ..., url = ... }
--- ─────────────────────────────────────────
+
 local Games = {
     [14890802310]     = { name = "biz biz biz",                        url = LUARMOR_BIZ },
     [74747090658891]  = { name = "biz",                                url = LUARMOR_BIZ },
     [99449877692519]  = { name = "bridge western",                     url = LUARMOR_BRIDGE },
 
-    -- AOT Revolution (all share the same loader)
     [13379349730]     = { name = "AOT Revolution — Shiganshina",       url = AOT_REVO },
     [13904207646]     = { name = "AOT Revolution — Outskirts",         url = AOT_REVO },
     [14012874501]     = { name = "AOT Revolution — Trost",             url = AOT_REVO },
@@ -43,7 +32,6 @@ local Games = {
     [112374853034490] = { name = "AOT Revolution — Training Grounds",  url = AOT_REVO },
     [126678335159530] = { name = "AOT Revolution — Chapel",            url = AOT_REVO },
 
-    -- VV (Bleach) — all share the same loader
     [6270290407]      = { name = "VV: ULTIMATUM",            url = VV },
     [9854445386]      = { name = "[ Content Deleted ]",      url = VV },
     [9861495985]      = { name = "Inner World",              url = VV },
@@ -70,20 +58,13 @@ local Games = {
     [132224751888154] = { name = "UPDATE PLACE",             url = VV },
 }
 
--- ─────────────────────────────────────────
--- UNIVERSAL TRIGGER (matched against the game's name)
--- ─────────────────────────────────────────
+
 local UniversalTrigger = {
     enabled = true,
-    words   = { "uni", "universal", "sailor", "piece" },
+    words   = { "uni", "universal"},
     url     = DKLN .. "universal.lua",
 }
 
--- ─────────────────────────────────────────
--- CUSTOM POPUP  (replaces the Roblox SendNotification)
--- Moving blue/purple gradient box, TOS-style pop-in,
--- close button greyed out with a 5s countdown before it works.
--- ─────────────────────────────────────────
 local POPUP_COUNTDOWN = 5
 
 local function tween(obj, t, props, style, dir)
@@ -95,13 +76,11 @@ end
 
 local function notify(title, message)
     task.spawn(function()
-        -- Theme colours (blue <-> purple)
         local BLUE1, BLUE2   = Color3.fromRGB(0, 27, 255),  Color3.fromRGB(0, 123, 255)
         local PURP1, PURP2   = Color3.fromRGB(217, 0, 255), Color3.fromRGB(42, 6, 42)
         local BTN_B1, BTN_B2 = Color3.fromRGB(38, 100, 236), Color3.fromRGB(7, 183, 213)
         local BTN_P1, BTN_P2 = Color3.fromRGB(131, 0, 212),  Color3.fromRGB(86, 0, 235)
         local STROKE_B, STROKE_P = Color3.fromRGB(0, 37, 86), Color3.fromRGB(52, 0, 84)
-
         local gui = Instance.new("ScreenGui")
         gui.Name = "OxyPopup"
         gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
@@ -110,8 +89,6 @@ local function notify(title, message)
         gui.DisplayOrder = 9999
         pcall(function() gui.Parent = CoreGui end)
         if not gui.Parent then gui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui") end
-
-        -- Dim background
         local dim = Instance.new("Frame", gui)
         dim.Size = UDim2.fromScale(1, 1)
         dim.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
@@ -119,7 +96,6 @@ local function notify(title, message)
         dim.BorderSizePixel = 0
         dim.ZIndex = 1
 
-        -- Box
         local box = Instance.new("Frame", gui)
         box.AnchorPoint = Vector2.new(0.5, 0.5)
         box.Position = UDim2.fromScale(0.5, 0.5)
@@ -137,7 +113,6 @@ local function notify(title, message)
         boxStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
         boxStroke.Transparency = 1
 
-        -- Moving gradient layer for the box
         local gradLayer = Instance.new("Frame", box)
         gradLayer.Size = UDim2.fromScale(1, 1)
         gradLayer.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -147,7 +122,6 @@ local function notify(title, message)
         Instance.new("UICorner", gradLayer).CornerRadius = UDim.new(0, 12)
         local boxGrad = Instance.new("UIGradient", gradLayer)
 
-        -- Title
         local titleLbl = Instance.new("TextLabel", box)
         titleLbl.BackgroundTransparency = 1
         titleLbl.Position = UDim2.fromOffset(20, 18)
@@ -161,7 +135,6 @@ local function notify(title, message)
         titleLbl.ZIndex = 3
         local titleGrad = Instance.new("UIGradient", titleLbl)
 
-        -- Liner
         local liner = Instance.new("Frame", box)
         liner.BackgroundColor3 = Color3.fromRGB(100, 103, 128)
         liner.BorderSizePixel = 0
@@ -170,7 +143,6 @@ local function notify(title, message)
         liner.BackgroundTransparency = 1
         liner.ZIndex = 3
 
-        -- Message
         local msgLbl = Instance.new("TextLabel", box)
         msgLbl.BackgroundTransparency = 1
         msgLbl.Position = UDim2.fromOffset(20, 62)
@@ -185,9 +157,6 @@ local function notify(title, message)
         msgLbl.TextTransparency = 1
         msgLbl.ZIndex = 3
 
-        -- Close button.
-        -- The clickable TextButton is transparent; the gradient lives on a child Frame
-        -- and the label is separate, so the gradient never tints (hides) the text.
         local btn = Instance.new("TextButton", box)
         btn.AnchorPoint = Vector2.new(0.5, 1)
         btn.Position = UDim2.new(0.5, 0, 1, -18)
@@ -220,7 +189,6 @@ local function notify(title, message)
         btnText.BorderSizePixel = 0
         btnText.ZIndex = 4
 
-        -- Animate all gradients (blue <-> purple, spinning) until destroyed
         local alive = true
         local conn
         conn = RunService.Heartbeat:Connect(function()
@@ -243,7 +211,6 @@ local function notify(title, message)
             boxStroke.Color = STROKE_B:Lerp(STROKE_P, a)
         end)
 
-        -- Pop in (TOS-style scale + fade)
         box.Size = UDim2.fromOffset(330, 175)
         tween(dim, 0.35, { BackgroundTransparency = 0.45 }, Enum.EasingStyle.Sine)
         tween(box, 0.45, { BackgroundTransparency = 0, Size = UDim2.fromOffset(360, 190) }, Enum.EasingStyle.Back)
@@ -253,11 +220,9 @@ local function notify(title, message)
         tween(titleLbl, 0.4, { TextTransparency = 0 })
         tween(liner, 0.4, { BackgroundTransparency = 0 })
         tween(msgLbl, 0.4, { TextTransparency = 0 })
-        -- Button shows greyed out (semi-transparent) during countdown
         tween(btnBg, 0.4, { BackgroundTransparency = 0.55 })
         tween(btnText, 0.4, { TextTransparency = 0.4 })
 
-        -- Countdown then enable
         local clicked = false
         local function closePopup()
             if clicked then return end
@@ -287,12 +252,10 @@ local function notify(title, message)
                 btnText.Text = "Close UI (" .. remaining .. ")"
                 task.wait(1)
             end
-            -- Enable: full opacity + clickable, with a little pop
             btn.Active = true
             btnText.Text = "Close UI"
             tween(btnBg, 0.3, { BackgroundTransparency = 0 })
             tween(btnText, 0.3, { TextTransparency = 0 })
-            -- quick pop to signal it's now clickable
             btn.Size = UDim2.fromOffset(300, 32)
             tween(btn, 0.4, { Size = UDim2.fromOffset(320, 36) }, Enum.EasingStyle.Back)
         end)
@@ -311,12 +274,9 @@ local function runScript(url)
     return ok
 end
 
--- ─────────────────────────────────────────
--- MAIN
--- ─────────────────────────────────────────
+
 local placeId = game.PlaceId
 
--- 1) Exact PlaceId match
 local entry = Games[placeId]
 if entry then
     notify("Oxy", "Loading " .. entry.name .. " — enjoy! Your script is running in the background.")
@@ -324,7 +284,6 @@ if entry then
     return
 end
 
--- 2) Universal trigger by game name
 if UniversalTrigger.enabled then
     local ok, info = pcall(function()
         return MarketplaceService:GetProductInfo(placeId)
@@ -341,6 +300,5 @@ if UniversalTrigger.enabled then
     end
 end
 
--- 3) Not supported
 notify("Oxy", "This game isn't supported yet. Check back after a future update.")
 warn(string.format("[Oxy] Unsupported game. PlaceId = %s (loader v%s)", tostring(placeId), VERSION))
