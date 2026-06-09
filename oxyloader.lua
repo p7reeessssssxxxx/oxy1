@@ -1,5 +1,3 @@
-
-
 local MarketplaceService = game:GetService("MarketplaceService")
 local TweenService        = game:GetService("TweenService")
 local RunService          = game:GetService("RunService")
@@ -58,6 +56,13 @@ local Games = {
     [132224751888154] = { name = "UPDATE PLACE",             url = VV },
 }
 
+
+-- universal trigger disabled (no shared base url anymore - this was crashing on DKLN)
+local UniversalTrigger = {
+    enabled = false,
+    words   = { "uni", "universal" },
+    url     = "",
+}
 
 local POPUP_COUNTDOWN = 5
 
@@ -256,23 +261,53 @@ local function notify(title, message)
     end)
 end
 
-local function runScript(url)
-    local ok, err = pcall(function()
-        local source = game:HttpGet(url)
-        loadstring(source)()
-    end)
-    if not ok then
-        notify("Oxy", "Failed to load script. Please try again later.")
-        warn("[Oxy] Failed to load script from " .. tostring(url) .. " -> " .. tostring(err))
+-- robust fetch: game:HttpGet -> syn.request -> request/http_request
+local function httpGet(url)
+    if type(url) ~= "string" or url == "" then return nil, "empty url" end
+    local ok, res = pcall(function() return game:HttpGet(url, true) end)
+    if ok and type(res) == "string" and res ~= "" then return res end
+    local synr = rawget(_G, "syn")
+    if type(synr) == "table" and type(synr.request) == "function" then
+        local ok2, r = pcall(synr.request, { Url = url, Method = "GET" })
+        if ok2 and type(r) == "table" and type(r.Body) == "string" and r.Body ~= "" then return r.Body end
     end
-    return ok
+    local req = rawget(_G, "request") or rawget(_G, "http_request")
+    if type(req) == "function" then
+        local ok3, r = pcall(req, { Url = url, Method = "GET" })
+        if ok3 and type(r) == "table" and type(r.Body) == "string" and r.Body ~= "" then return r.Body end
+    end
+    return nil, (ok and "empty response" or tostring(res))
+end
+
+local function runScript(url)
+    local source, ferr = httpGet(url)
+    if not source then
+        notify("Oxy", "Couldn't fetch the script:\n" .. tostring(ferr))
+        warn("[Oxy] fetch failed for " .. tostring(url) .. " -> " .. tostring(ferr))
+        return false
+    end
+    local chunk, cerr = (loadstring or load)(source, "OxyScript")
+    if not chunk then
+        notify("Oxy", "Script wouldn't compile:\n" .. tostring(cerr))
+        warn("[Oxy] compile failed -> " .. tostring(cerr))
+        return false
+    end
+    local ok, rerr = pcall(chunk)
+    if not ok then
+        notify("Oxy", "Script errored while loading:\n" .. tostring(rerr))
+        warn("[Oxy] run error -> " .. tostring(rerr))
+        return false
+    end
+    return true
 end
 
 
 local placeId = game.PlaceId
+warn("[Oxy] PlaceId = " .. tostring(placeId))
 
 local entry = Games[placeId]
 if entry then
+    warn("[Oxy] matched: " .. tostring(entry.name) .. "  ->  " .. tostring(entry.url))
     notify("Oxy", "Loading " .. entry.name .. " — enjoy! Your script is running in the background.")
     runScript(entry.url)
     return
