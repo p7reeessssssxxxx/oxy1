@@ -62,7 +62,6 @@ local Games = {
 local UniversalTrigger = {
     enabled = true,
     words   = { "uni", "universal"},
-    url     = DKLN .. "universal.lua",
 }
 
 local POPUP_COUNTDOWN = 5
