@@ -59,11 +59,6 @@ local Games = {
 }
 
 
-local UniversalTrigger = {
-    enabled = true,
-    words   = { "uni", "universal"},
-}
-
 local POPUP_COUNTDOWN = 5
 
 local function tween(obj, t, props, style, dir)
