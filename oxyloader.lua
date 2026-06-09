@@ -257,6 +257,10 @@ local function notify(title, message)
             tween(btnText, 0.3, { TextTransparency = 0 })
             btn.Size = UDim2.fromOffset(300, 32)
             tween(btn, 0.4, { Size = UDim2.fromOffset(320, 36) }, Enum.EasingStyle.Back)
+            -- auto-close: if it's still up a few seconds after the countdown, close it itself
+            task.delay(5, function()
+                if not clicked then closePopup() end
+            end)
         end)
     end)
 end
@@ -279,23 +283,28 @@ local function httpGet(url)
     return nil, (ok and "empty response" or tostring(res))
 end
 
+-- scrub any URL out of error text so the Luarmor loader link never shows in the console/popup
+local function scrub(s)
+    return (tostring(s):gsub("https?://[%w%.%-_/]+", "<hidden>"))
+end
+
 local function runScript(url)
     local source, ferr = httpGet(url)
     if not source then
-        notify("Oxy", "Couldn't fetch the script:\n" .. tostring(ferr))
-        warn("[Oxy] fetch failed for " .. tostring(url) .. " -> " .. tostring(ferr))
+        notify("Oxy", "Couldn't fetch the script — check your connection and try again.")
+        warn("[Oxy] fetch failed -> " .. scrub(ferr))
         return false
     end
     local chunk, cerr = (loadstring or load)(source, "OxyScript")
     if not chunk then
-        notify("Oxy", "Script wouldn't compile:\n" .. tostring(cerr))
-        warn("[Oxy] compile failed -> " .. tostring(cerr))
+        notify("Oxy", "Script wouldn't compile. Try again later.")
+        warn("[Oxy] compile failed -> " .. scrub(cerr))
         return false
     end
     local ok, rerr = pcall(chunk)
     if not ok then
-        notify("Oxy", "Script errored while loading:\n" .. tostring(rerr))
-        warn("[Oxy] run error -> " .. tostring(rerr))
+        notify("Oxy", "Script errored while loading. Try again later.")
+        warn("[Oxy] run error -> " .. scrub(rerr))
         return false
     end
     return true
@@ -307,7 +316,7 @@ warn("[Oxy] PlaceId = " .. tostring(placeId))
 
 local entry = Games[placeId]
 if entry then
-    warn("[Oxy] matched: " .. tostring(entry.name) .. "  ->  " .. tostring(entry.url))
+    warn("[Oxy] matched: " .. tostring(entry.name))
     notify("Oxy", "Loading " .. entry.name .. " — enjoy! Your script is running in the background.")
     runScript(entry.url)
     return
