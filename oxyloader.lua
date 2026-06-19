@@ -1,14 +1,14 @@
 local MarketplaceService = game:GetService("MarketplaceService")
-local TweenService        = game:GetService("TweenService")
-local RunService          = game:GetService("RunService")
-local CoreGui             = game:GetService("CoreGui")
-local VERSION        = "1"
-local LAST_UPDATED   = "2026-04-30"
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+local VERSION = "1"
+local LAST_UPDATED = "2026-04-30"
 local UPDATE_MESSAGE = "added AOT Revolution games"
 local AOT_REVO  = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/aotr%20oxy-obfuscated.lua"
-local LUARMOR_BIZ    = "https://api.luarmor.net/files/v4/loaders/447580729d1c51c1eafa48045ac2eb02.lua"
+local LUARMOR_BIZ = "https://api.luarmor.net/files/v4/loaders/447580729d1c51c1eafa48045ac2eb02.lua"
 local LUARMOR_BRIDGE = "https://api.luarmor.net/files/v4/loaders/92f99acda2ff5f0c6ff700f9f8c05fb9.lua"
-local VV             = "https://api.luarmor.net/files/v4/loaders/f8d5888da72882996377c8e4f3625c1e.lua"
+local VV  = "https://api.luarmor.net/files/v4/loaders/f8d5888da72882996377c8e4f3625c1e.lua"
 
 
 local Games = {
