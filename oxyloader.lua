@@ -265,7 +265,6 @@ local function notify(title, message)
     end)
 end
 
--- robust fetch: game:HttpGet -> syn.request -> request/http_request
 local function httpGet(url)
     if type(url) ~= "string" or url == "" then return nil, "empty url" end
     local ok, res = pcall(function() return game:HttpGet(url, true) end)
@@ -283,7 +282,6 @@ local function httpGet(url)
     return nil, (ok and "empty response" or tostring(res))
 end
 
--- scrub any URL out of error text so the Luarmor loader link never shows in the console/popup
 local function scrub(s)
     return (tostring(s):gsub("https?://[%w%.%-_/]+", "<hidden>"))
 end
