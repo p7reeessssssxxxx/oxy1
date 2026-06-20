@@ -1,20 +1,56 @@
+-- GLOBAL loadstring polyfill: the Luarmor loaders this script runs (and the script they
+-- load) call the GLOBAL `loadstring` internally. On executors that only ship `load` that
+-- global is nil, so they crash with "attempt to call a nil value (global 'loadstring')".
+-- Alias it to `load` BEFORE we run any of them so every nested call resolves.
+do
+    local genv = (getgenv and getgenv()) or _G
+    if type(rawget(genv, "loadstring")) ~= "function" and type(load) == "function" then
+        genv.loadstring = load
+        _G.loadstring = _G.loadstring or load
+    end
+end
+
 local MarketplaceService = game:GetService("MarketplaceService")
-local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
-local CoreGui = game:GetService("CoreGui")
-local VERSION = "1"
-local LAST_UPDATED = "2026-04-30"
+local TweenService        = game:GetService("TweenService")
+local RunService          = game:GetService("RunService")
+local CoreGui             = game:GetService("CoreGui")
+local VERSION        = "1"
+local LAST_UPDATED   = "2026-04-30"
 local UPDATE_MESSAGE = "added AOT Revolution games"
+-- ================================================
+--  OXY LOADSTRINGS  (full form, copy-paste per game)
+-- ================================================
+-- The auto-detect loader below maps each PlaceId to one of these and runs it for you. If you
+-- want to load a specific game's script directly (no auto-detect), copy the matching line:
+--
+--   -- VV  (Bleach: ULTIMATUM, Fort Adams, Soul Society, Hueco Mundo, Arctic Plains, ...)
+--   loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/f8d5888da72882996377c8e4f3625c1e.lua"))()
+--
+--   -- AOT Revolution  (Shiganshina, Trost, Stohess, Utgard, ...)
+--   loadstring(game:HttpGet("https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/aotr%20oxy-obfuscated.lua"))()
+--
+--   -- Bizarre Lineage  (biz biz biz, biz)
+--   loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/447580729d1c51c1eafa48045ac2eb02.lua"))()
+--
+--   -- Bridge Western
+--   loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/92f99acda2ff5f0c6ff700f9f8c05fb9.lua"))()
+-- ------------------------------------------------------------------
+
 local AOT_REVO  = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/aotr%20oxy-obfuscated.lua"
-local LUARMOR_BIZ = "https://api.luarmor.net/files/v4/loaders/447580729d1c51c1eafa48045ac2eb02.lua"
+local LUARMOR_BIZ    = "https://api.luarmor.net/files/v4/loaders/447580729d1c51c1eafa48045ac2eb02.lua"
 local LUARMOR_BRIDGE = "https://api.luarmor.net/files/v4/loaders/92f99acda2ff5f0c6ff700f9f8c05fb9.lua"
-local VV  = "https://api.luarmor.net/files/v4/loaders/f8d5888da72882996377c8e4f3625c1e.lua"
+local VV             = "https://api.luarmor.net/files/v4/loaders/f8d5888da72882996377c8e4f3625c1e.lua"
+local REDLINER       = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20redliner%20free-obfuscated.lua"
 
 
 local Games = {
     [14890802310]     = { name = "biz biz biz",                        url = LUARMOR_BIZ },
     [74747090658891]  = { name = "biz",                                url = LUARMOR_BIZ },
     [99449877692519]  = { name = "bridge western",                     url = LUARMOR_BRIDGE },
+
+    [115875349872417] = { name = "Redliner",                          url = REDLINER },
+    [126691165749976] = { name = "Redliner",                          url = REDLINER },
+    [94987506187454]  = { name = "Redliner",                          url = REDLINER },
 
     [13379349730]     = { name = "AOT Revolution — Shiganshina",       url = AOT_REVO },
     [13904207646]     = { name = "AOT Revolution — Outskirts",         url = AOT_REVO },
@@ -29,6 +65,7 @@ local Games = {
     [17688739434]     = { name = "AOT Revolution — Docks",             url = AOT_REVO },
     [112374853034490] = { name = "AOT Revolution — Training Grounds",  url = AOT_REVO },
     [126678335159530] = { name = "AOT Revolution — Chapel",            url = AOT_REVO },
+    [6270290407]      = { name = "AOT Revolution — Chapel",            url = AOT_REVO },
 
     [6270290407]      = { name = "VV: ULTIMATUM",            url = VV },
     [9854445386]      = { name = "[ Content Deleted ]",      url = VV },
@@ -265,23 +302,34 @@ local function notify(title, message)
     end)
 end
 
+-- robust fetch: game:HttpGet -> syn.request -> fluxus/http.request -> request/http_request
 local function httpGet(url)
     if type(url) ~= "string" or url == "" then return nil, "empty url" end
     local ok, res = pcall(function() return game:HttpGet(url, true) end)
     if ok and type(res) == "string" and res ~= "" then return res end
-    local synr = rawget(_G, "syn")
-    if type(synr) == "table" and type(synr.request) == "function" then
-        local ok2, r = pcall(synr.request, { Url = url, Method = "GET" })
-        if ok2 and type(r) == "table" and type(r.Body) == "string" and r.Body ~= "" then return r.Body end
-    end
-    local req = rawget(_G, "request") or rawget(_G, "http_request")
-    if type(req) == "function" then
-        local ok3, r = pcall(req, { Url = url, Method = "GET" })
-        if ok3 and type(r) == "table" and type(r.Body) == "string" and r.Body ~= "" then return r.Body end
+    -- collect every known request-style API and try each one (skip nils so the
+    -- list has no holes - ipairs would otherwise stop at the first missing API)
+    local synr   = rawget(_G, "syn")
+    local httpns = rawget(_G, "http")
+    local fluxus = rawget(_G, "fluxus")
+    local candidates = {}
+    local function add(fn) if type(fn) == "function" then candidates[#candidates + 1] = fn end end
+    if type(synr)   == "table" then add(synr.request)   end
+    if type(httpns) == "table" then add(httpns.request) end
+    if type(fluxus) == "table" then add(fluxus.request) end
+    add(rawget(_G, "request"))
+    add(rawget(_G, "http_request"))
+    for _, req in ipairs(candidates) do
+        local okN, r = pcall(req, { Url = url, Method = "GET" })
+        if okN and type(r) == "table" then
+            local body = r.Body or r.body
+            if type(body) == "string" and body ~= "" then return body end
+        end
     end
     return nil, (ok and "empty response" or tostring(res))
 end
 
+-- scrub any URL out of error text so the Luarmor loader link never shows in the console/popup
 local function scrub(s)
     return (tostring(s):gsub("https?://[%w%.%-_/]+", "<hidden>"))
 end
