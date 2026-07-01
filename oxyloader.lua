@@ -7,11 +7,11 @@ do
 end
 
 local MarketplaceService = game:GetService("MarketplaceService")
-local TweenService        = game:GetService("TweenService")
-local RunService          = game:GetService("RunService")
-local CoreGui             = game:GetService("CoreGui")
-local VERSION        = "1"
-local LAST_UPDATED   = "2026-04-30"
+local TweenService = game:GetService("TweenService")
+local RunService = game:GetService("RunService")
+local CoreGui = game:GetService("CoreGui")
+local VERSION = "2"
+local LAST_UPDATED  = "2026-07-01"
 local UPDATE_MESSAGE = "added AOT Revolution games"
 
 local AOT_REVO       = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/aotr%20oxy-obfuscated.lua"
