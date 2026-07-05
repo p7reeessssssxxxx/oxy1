@@ -1,4 +1,7 @@
-
+-- GLOBAL loadstring polyfill: the Luarmor loaders this script runs (and the script they
+-- load) call the GLOBAL `loadstring` internally. On executors that only ship `load` that
+-- global is nil, so they crash with "attempt to call a nil value (global 'loadstring')".
+-- Alias it to `load` BEFORE we run any of them so every nested call resolves.
 do
     local genv = (getgenv and getgenv()) or _G
     if type(rawget(genv, "loadstring")) ~= "function" and type(load) == "function" then
@@ -14,6 +17,25 @@ local CoreGui             = game:GetService("CoreGui")
 local VERSION        = "1"
 local LAST_UPDATED   = "2026-04-30"
 local UPDATE_MESSAGE = "added AOT Revolution games"
+-- ================================================
+--  OXY LOADSTRINGS  (full form, copy-paste per game)
+-- ================================================
+-- The auto-detect loader below maps each PlaceId to one of these and runs it for you. If you
+-- want to load a specific game's script directly (no auto-detect), copy the matching line:
+--
+--   -- VV  (Bleach: ULTIMATUM, Fort Adams, Soul Society, Hueco Mundo, Arctic Plains, ...)
+--   loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/f8d5888da72882996377c8e4f3625c1e.lua"))()
+--
+--   -- AOT Revolution  (Shiganshina, Trost, Stohess, Utgard, ...)
+--   loadstring(game:HttpGet("https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/aotr%20oxy-obfuscated.lua"))()
+--
+--   -- Bizarre Lineage  (biz biz biz, biz)
+--   loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/447580729d1c51c1eafa48045ac2eb02.lua"))()
+--
+--   -- Bridge Western
+--   loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/92f99acda2ff5f0c6ff700f9f8c05fb9.lua"))()
+-- ------------------------------------------------------------------
+
 local AOT_REVO       = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/aotr%20oxy-obfuscated.lua"
 local LUARMOR_BIZ    = "https://api.luarmor.net/files/v4/loaders/447580729d1c51c1eafa48045ac2eb02.lua"
 local LUARMOR_BRIDGE = "https://api.luarmor.net/files/v4/loaders/92f99acda2ff5f0c6ff700f9f8c05fb9.lua"
