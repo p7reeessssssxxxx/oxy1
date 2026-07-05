@@ -1,3 +1,4 @@
+
 do
     local genv = (getgenv and getgenv()) or _G
     if type(rawget(genv, "loadstring")) ~= "function" and type(load) == "function" then
@@ -7,13 +8,12 @@ do
 end
 
 local MarketplaceService = game:GetService("MarketplaceService")
-local TweenService = game:GetService("TweenService")
-local RunService = game:GetService("RunService")
-local CoreGui = game:GetService("CoreGui")
-local VERSION = "2"
-local LAST_UPDATED  = "2026-07-01"
+local TweenService        = game:GetService("TweenService")
+local RunService          = game:GetService("RunService")
+local CoreGui             = game:GetService("CoreGui")
+local VERSION        = "1"
+local LAST_UPDATED   = "2026-04-30"
 local UPDATE_MESSAGE = "added AOT Revolution games"
-
 local AOT_REVO       = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/aotr%20oxy-obfuscated.lua"
 local LUARMOR_BIZ    = "https://api.luarmor.net/files/v4/loaders/447580729d1c51c1eafa48045ac2eb02.lua"
 local LUARMOR_BRIDGE = "https://api.luarmor.net/files/v4/loaders/92f99acda2ff5f0c6ff700f9f8c05fb9.lua"
@@ -21,6 +21,7 @@ local VV             = "https://api.luarmor.net/files/v4/loaders/f8d5888da728829
 local REDLINER       = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20redliner%20free-obfuscated.lua"
 local PILGRAMMED     = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20pilgrammed-obfuscated.lua"
 local GAG            = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20gag2-obfuscated.lua"
+local GAK           = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy_gakuran_free-obfuscated.lua"
 
 
 local Games = {
@@ -29,6 +30,8 @@ local Games = {
     [99449877692519]  = { name = "bridge western",                     url = LUARMOR_BRIDGE },
 
     [6735572261]      = { name = "Pilgrammed",                        url = PILGRAMMED },
+
+    [128736949265057] = { name = "gakuran",                                url = GAK },
 
     [97598239454123]  = { name = "gag2",                              url = GAG },
 
@@ -76,6 +79,8 @@ local Games = {
     [132224751888154] = { name = "UPDATE PLACE",             url = VV },
 }
 
+
+-- universal trigger disabled (no shared base url anymore - this was crashing on DKLN)
 local UniversalTrigger = {
     enabled = false,
     words   = { "uni", "universal" },
@@ -309,6 +314,8 @@ local function httpGet(url)
     end
     return nil, (ok and "empty response" or tostring(res))
 end
+
+-- scrub any URL out of error text so the Luarmor loader link never shows in the console/popup
 local function scrub(s)
     return (tostring(s):gsub("https?://[%w%.%-_/]+", "<hidden>"))
 end
@@ -334,6 +341,7 @@ local function runScript(url)
     end
     return true
 end
+
 
 local placeId = game.PlaceId
 warn("[Oxy] PlaceId = " .. tostring(placeId))
