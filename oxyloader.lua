@@ -1,7 +1,4 @@
--- GLOBAL loadstring polyfill: the Luarmor loaders this script runs (and the script they
--- load) call the GLOBAL `loadstring` internally. On executors that only ship `load` that
--- global is nil, so they crash with "attempt to call a nil value (global 'loadstring')".
--- Alias it to `load` BEFORE we run any of them so every nested call resolves.
+
 do
     local genv = (getgenv and getgenv()) or _G
     if type(rawget(genv, "loadstring")) ~= "function" and type(load) == "function" then
@@ -17,24 +14,6 @@ local CoreGui             = game:GetService("CoreGui")
 local VERSION        = "1"
 local LAST_UPDATED   = "2026-04-30"
 local UPDATE_MESSAGE = "added AOT Revolution games"
--- ================================================
---  OXY LOADSTRINGS  (full form, copy-paste per game)
--- ================================================
--- The auto-detect loader below maps each PlaceId to one of these and runs it for you. If you
--- want to load a specific game's script directly (no auto-detect), copy the matching line:
---
---   -- VV  (Bleach: ULTIMATUM, Fort Adams, Soul Society, Hueco Mundo, Arctic Plains, ...)
---   loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/f8d5888da72882996377c8e4f3625c1e.lua"))()
---
---   -- AOT Revolution  (Shiganshina, Trost, Stohess, Utgard, ...)
---   loadstring(game:HttpGet("https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/aotr%20oxy-obfuscated.lua"))()
---
---   -- Bizarre Lineage  (biz biz biz, biz)
---   loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/447580729d1c51c1eafa48045ac2eb02.lua"))()
---
---   -- Bridge Western
---   loadstring(game:HttpGet("https://api.luarmor.net/files/v4/loaders/92f99acda2ff5f0c6ff700f9f8c05fb9.lua"))()
--- ------------------------------------------------------------------
 
 local AOT_REVO       = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/aotr%20oxy-obfuscated.lua"
 local LUARMOR_BIZ    = "https://api.luarmor.net/files/v4/loaders/447580729d1c51c1eafa48045ac2eb02.lua"
@@ -43,7 +22,9 @@ local VV             = "https://api.luarmor.net/files/v4/loaders/f8d5888da728829
 local REDLINER       = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20redliner%20free-obfuscated.lua"
 local PILGRAMMED     = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20pilgrammed-obfuscated.lua"
 local GAG            = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20gag2-obfuscated.lua"
-local GAK           = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy_gakuran_free-obfuscated.lua"
+local GAK            = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy_gakuran_free-obfuscated.lua"
+local BLOXSTRIKE     = "https://api.luarmor.net/files/v4/loaders/36b843ce6db67d941d818a8b6882602a.lua"
+
 
 
 local Games = {
@@ -52,6 +33,11 @@ local Games = {
     [99449877692519]  = { name = "bridge western",                     url = LUARMOR_BRIDGE },
 
     [6735572261]      = { name = "Pilgrammed",                        url = PILGRAMMED },
+
+    [135434213652028]      = { name = "Bloxstrike",                        url = BLOXSTRIKE },
+    [114234929420007]      = { name = "Bloxstrike",                        url = BLOXSTRIKE },
+    [108194354348181]      = { name = "Bloxstrike",                        url = BLOXSTRIKE },
+
 
     [128736949265057] = { name = "gakuran",                                url = GAK },
 
@@ -109,7 +95,7 @@ local UniversalTrigger = {
     url     = "",
 }
 
-local POPUP_COUNTDOWN = 5
+local POPUP_COUNTDOWN = 3
 
 local function tween(obj, t, props, style, dir)
     local tw = TweenService:Create(obj,
@@ -310,6 +296,144 @@ local function notify(title, message)
     end)
 end
 
+-- ── Executor risk gate ─────────────────────────────────────────────────────
+-- Some executors are unstable and can cause issues. Warn the user (Yes/No) BEFORE
+-- we load anything. Volt + Potassium are trusted and skip the warning entirely.
+local function execName()
+    local ok, n = pcall(function()
+        if type(identifyexecutor) == "function" then return (identifyexecutor()) end
+        if type(getexecutorname) == "function" then return (getexecutorname()) end
+        return nil
+    end)
+    return (ok and type(n) == "string") and string.lower(n) or ""
+end
+
+local function execTrusted()
+    local n = execName()
+    return n:find("volt", 1, true) ~= nil or n:find("potassium", 1, true) ~= nil
+end
+
+-- Blocking Yes/No warning. Returns true if the user accepts the risk, false if not.
+local function confirmRisk()
+    local BLUE1, BLUE2 = Color3.fromRGB(0, 27, 255),  Color3.fromRGB(0, 123, 255)
+    local PURP1, PURP2 = Color3.fromRGB(217, 0, 255), Color3.fromRGB(42, 6, 42)
+    local STROKE_B, STROKE_P = Color3.fromRGB(0, 37, 86), Color3.fromRGB(52, 0, 84)
+
+    local gui = Instance.new("ScreenGui")
+    gui.Name = "OxyRiskPopup"
+    gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+    gui.IgnoreGuiInset = true
+    gui.ResetOnSpawn = false
+    gui.DisplayOrder = 10000
+    pcall(function() gui.Parent = CoreGui end)
+    if not gui.Parent then gui.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui") end
+
+    local dim = Instance.new("Frame", gui)
+    dim.Size = UDim2.fromScale(1, 1)
+    dim.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    dim.BackgroundTransparency = 1
+    dim.BorderSizePixel = 0
+    dim.ZIndex = 1
+
+    local box = Instance.new("Frame", gui)
+    box.AnchorPoint = Vector2.new(0.5, 0.5)
+    box.Position = UDim2.fromScale(0.5, 0.5)
+    box.Size = UDim2.fromOffset(380, 215)
+    box.BackgroundColor3 = Color3.fromRGB(31, 42, 60)
+    box.BackgroundTransparency = 1
+    box.BorderSizePixel = 0
+    box.ZIndex = 2
+    Instance.new("UICorner", box).CornerRadius = UDim.new(0, 12)
+    local boxStroke = Instance.new("UIStroke", box)
+    boxStroke.Thickness = 1.4
+    boxStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+    boxStroke.Transparency = 1
+
+    local titleLbl = Instance.new("TextLabel", box)
+    titleLbl.BackgroundTransparency = 1
+    titleLbl.Position = UDim2.fromOffset(20, 16)
+    titleLbl.Size = UDim2.fromOffset(340, 26)
+    titleLbl.Font = Enum.Font.GothamBold
+    titleLbl.TextSize = 20
+    titleLbl.TextXAlignment = Enum.TextXAlignment.Left
+    titleLbl.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleLbl.Text = "Executor Warning"
+    titleLbl.TextTransparency = 1
+    titleLbl.ZIndex = 3
+
+    local msgLbl = Instance.new("TextLabel", box)
+    msgLbl.BackgroundTransparency = 1
+    msgLbl.Position = UDim2.fromOffset(20, 54)
+    msgLbl.Size = UDim2.fromOffset(340, 74)
+    msgLbl.Font = Enum.Font.GothamMedium
+    msgLbl.TextSize = 15
+    msgLbl.TextWrapped = true
+    msgLbl.TextXAlignment = Enum.TextXAlignment.Left
+    msgLbl.TextYAlignment = Enum.TextYAlignment.Top
+    msgLbl.TextColor3 = Color3.fromRGB(200, 210, 228)
+    msgLbl.Text = "this executor isnt the best and can cause issues do you accept this risk?"
+    msgLbl.TextTransparency = 1
+    msgLbl.ZIndex = 3
+
+    local function mkBtn(text, x, w, color)
+        local b = Instance.new("TextButton", box)
+        b.AnchorPoint = Vector2.new(0, 1)
+        b.Position = UDim2.new(0, x, 1, -16)
+        b.Size = UDim2.fromOffset(w, 38)
+        b.AutoButtonColor = true
+        b.BackgroundColor3 = color
+        b.BackgroundTransparency = 1
+        b.Text = text
+        b.Font = Enum.Font.GothamBold
+        b.TextSize = 15
+        b.TextColor3 = Color3.fromRGB(255, 255, 255)
+        b.TextTransparency = 1
+        b.BorderSizePixel = 0
+        b.ZIndex = 3
+        Instance.new("UICorner", b).CornerRadius = UDim.new(0, 8)
+        return b
+    end
+    local noBtn  = mkBtn("No",            20,  110, Color3.fromRGB(150, 45, 45))
+    local yesBtn = mkBtn("Yes, continue", 140, 220, Color3.fromRGB(38, 100, 236))
+
+    local alive = true
+    local conn = RunService.Heartbeat:Connect(function()
+        if not alive then conn:Disconnect() return end
+        local a = (math.sin(os.clock() * 0.6) + 1) / 2
+        boxStroke.Color = STROKE_B:Lerp(STROKE_P, a)
+    end)
+
+    -- fade in
+    tween(dim, 0.3, { BackgroundTransparency = 0.45 }, Enum.EasingStyle.Sine)
+    tween(box, 0.4, { BackgroundTransparency = 0 }, Enum.EasingStyle.Back)
+    tween(boxStroke, 0.4, { Transparency = 0 })
+    task.wait(0.08)
+    tween(titleLbl, 0.35, { TextTransparency = 0 })
+    tween(msgLbl, 0.35, { TextTransparency = 0 })
+    tween(noBtn, 0.35, { BackgroundTransparency = 0, TextTransparency = 0 })
+    tween(yesBtn, 0.35, { BackgroundTransparency = 0, TextTransparency = 0 })
+
+    local accepted = nil
+    noBtn.MouseButton1Click:Connect(function() if accepted == nil then accepted = false end end)
+    yesBtn.MouseButton1Click:Connect(function() if accepted == nil then accepted = true end end)
+
+    while accepted == nil do task.wait() end
+
+    -- fade out
+    tween(dim, 0.3, { BackgroundTransparency = 1 }, Enum.EasingStyle.Sine)
+    tween(box, 0.3, { BackgroundTransparency = 1 }, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
+    tween(boxStroke, 0.25, { Transparency = 1 })
+    tween(titleLbl, 0.2, { TextTransparency = 1 })
+    tween(msgLbl, 0.2, { TextTransparency = 1 })
+    tween(noBtn, 0.2, { BackgroundTransparency = 1, TextTransparency = 1 })
+    tween(yesBtn, 0.2, { BackgroundTransparency = 1, TextTransparency = 1 })
+    task.wait(0.32)
+    alive = false
+    if conn then conn:Disconnect() end
+    gui:Destroy()
+    return accepted
+end
+
 -- robust fetch: game:HttpGet -> syn.request -> fluxus/http.request -> request/http_request
 local function httpGet(url)
     if type(url) ~= "string" or url == "" then return nil, "empty url" end
@@ -371,6 +495,14 @@ warn("[Oxy] PlaceId = " .. tostring(placeId))
 local entry = Games[placeId]
 if entry then
     warn("[Oxy] matched: " .. tostring(entry.name))
+    -- executor risk warning before we load anything (Volt / Potassium skip it)
+    if not execTrusted() then
+        if not confirmRisk() then
+            notify("Oxy", "Load cancelled — you declined the executor warning.")
+            warn("[Oxy] user declined the executor risk warning — not loading")
+            return
+        end
+    end
     notify("Oxy", "Loading " .. entry.name .. " — enjoy! Your script is running in the background.")
     runScript(entry.url)
     return
@@ -384,6 +516,9 @@ if UniversalTrigger.enabled then
         local lowerName = string.lower(info.Name)
         for _, word in ipairs(UniversalTrigger.words) do
             if string.find(lowerName, word, 1, true) then
+                if not execTrusted() then
+                    if not confirmRisk() then warn("[Oxy] declined executor risk — not loading") return end
+                end
                 notify("Oxy", "Loading the universal script for this game.")
                 runScript(UniversalTrigger.url)
                 return
