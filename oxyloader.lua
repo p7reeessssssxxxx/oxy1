@@ -310,7 +310,7 @@ end
 
 local function execTrusted()
     local n = execName()
-    return n:find("volt", 1, true) ~= nil or n:find("potassium", 1, true) ~= nil
+    return n:find("volt", 1, true) ~= nil or n:find("potassium", 1, true) ~= nil or n:find("synapse z", 1, true) ~= nil
 end
 
 -- Blocking Yes/No warning. Returns true if the user accepts the risk, false if not.
