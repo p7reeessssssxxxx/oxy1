@@ -288,7 +288,6 @@ local function notify(title, message)
             tween(btnText, 0.3, { TextTransparency = 0 })
             btn.Size = UDim2.fromOffset(300, 32)
             tween(btn, 0.4, { Size = UDim2.fromOffset(320, 36) }, Enum.EasingStyle.Back)
-            -- auto-close: if it's still up a few seconds after the countdown, close it itself
             task.delay(5, function()
                 if not clicked then closePopup() end
             end)
@@ -296,9 +295,6 @@ local function notify(title, message)
     end)
 end
 
--- ── Executor risk gate ─────────────────────────────────────────────────────
--- Some executors are unstable and can cause issues. Warn the user (Yes/No) BEFORE
--- we load anything. Volt + Potassium are trusted and skip the warning entirely.
 local function execName()
     local ok, n = pcall(function()
         if type(identifyexecutor) == "function" then return (identifyexecutor()) end
@@ -419,7 +415,6 @@ local function confirmRisk()
 
     while accepted == nil do task.wait() end
 
-    -- fade out
     tween(dim, 0.3, { BackgroundTransparency = 1 }, Enum.EasingStyle.Sine)
     tween(box, 0.3, { BackgroundTransparency = 1 }, Enum.EasingStyle.Quint, Enum.EasingDirection.In)
     tween(boxStroke, 0.25, { Transparency = 1 })
@@ -434,13 +429,12 @@ local function confirmRisk()
     return accepted
 end
 
--- robust fetch: game:HttpGet -> syn.request -> fluxus/http.request -> request/http_request
+
+-- some shit made by ai
 local function httpGet(url)
     if type(url) ~= "string" or url == "" then return nil, "empty url" end
     local ok, res = pcall(function() return game:HttpGet(url, true) end)
     if ok and type(res) == "string" and res ~= "" then return res end
-    -- collect every known request-style API and try each one (skip nils so the
-    -- list has no holes - ipairs would otherwise stop at the first missing API)
     local synr   = rawget(_G, "syn")
     local httpns = rawget(_G, "http")
     local fluxus = rawget(_G, "fluxus")
@@ -461,7 +455,6 @@ local function httpGet(url)
     return nil, (ok and "empty response" or tostring(res))
 end
 
--- scrub any URL out of error text so the Luarmor loader link never shows in the console/popup
 local function scrub(s)
     return (tostring(s):gsub("https?://[%w%.%-_/]+", "<hidden>"))
 end
@@ -495,7 +488,6 @@ warn("[Oxy] PlaceId = " .. tostring(placeId))
 local entry = Games[placeId]
 if entry then
     warn("[Oxy] matched: " .. tostring(entry.name))
-    -- executor risk warning before we load anything (Volt / Potassium skip it)
     if not execTrusted() then
         if not confirmRisk() then
             notify("Oxy", "Load cancelled — you declined the executor warning.")
