@@ -23,7 +23,7 @@ local REDLINER       = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfr
 local PILGRAMMED     = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20pilgrammed-obfuscated.lua"
 local GAG            = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20gag2-obfuscated.lua"
 local GAK            = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy_gakuran_free-obfuscated.lua"
-local BLOXSTRIKE     = "https://api.luarmor.net/files/v4/loaders/36b843ce6db67d941d818a8b6882602a.lua"
+local BLOXSTRIKE     = "https://api.luarmor.net/files/v4/loaders/33045b7872e8144d95c00b7eb366be3b.lua"
 
 
 
