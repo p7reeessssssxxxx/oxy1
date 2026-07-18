@@ -24,6 +24,7 @@ local PILGRAMMED     = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfr
 local GAG            = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20gag2-obfuscated.lua"
 local GAK            = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy_gakuran_free-obfuscated.lua"
 local BLOXSTRIKE     = "https://api.luarmor.net/files/v4/loaders/33045b7872e8144d95c00b7eb366be3b.lua"
+local VD     = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/violence%20district.lua" 
 
 
 
@@ -32,16 +33,18 @@ local Games = {
     [74747090658891]  = { name = "biz",                                url = LUARMOR_BIZ },
     [99449877692519]  = { name = "bridge western",                     url = LUARMOR_BRIDGE },
 
-    [6735572261]      = { name = "Pilgrammed",                        url = PILGRAMMED },
+    [6735572261]      = { name = "Pilgrammed",                              url = PILGRAMMED },
+    
+    [93978595733734]      = { name = "VD",                                              url = VD },
 
     [135434213652028]      = { name = "Bloxstrike",                        url = BLOXSTRIKE },
     [114234929420007]      = { name = "Bloxstrike",                        url = BLOXSTRIKE },
     [108194354348181]      = { name = "Bloxstrike",                        url = BLOXSTRIKE },
 
 
-    [128736949265057] = { name = "gakuran",                                url = GAK },
+    [128736949265057] = { name = "gakuran",                                   url = GAK },
 
-    [97598239454123]  = { name = "gag2",                              url = GAG },
+    [97598239454123]  = { name = "gag2",                                      url = GAG },
 
     [115875349872417] = { name = "Redliner",                          url = REDLINER },
     [126691165749976] = { name = "Redliner",                          url = REDLINER },
