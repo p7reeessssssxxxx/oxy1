@@ -25,6 +25,7 @@ local GAG            = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfr
 local GAK            = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy_gakuran_free-obfuscated.lua"
 local BLOXSTRIKE     = "https://api.luarmor.net/files/v4/loaders/33045b7872e8144d95c00b7eb366be3b.lua"
 local VD     = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/violence%20district.lua" 
+local OP1     = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20operation%20one%20FREE-obfuscated.lua" 
 
 
 
@@ -36,6 +37,8 @@ local Games = {
     [6735572261]      = { name = "Pilgrammed",                              url = PILGRAMMED },
     
     [93978595733734]      = { name = "VD",                                              url = VD },
+
+    [72920620366355]      = { name = "OP1",                                              url = OP1 },
 
     [135434213652028]      = { name = "Bloxstrike",                        url = BLOXSTRIKE },
     [114234929420007]      = { name = "Bloxstrike",                        url = BLOXSTRIKE },
