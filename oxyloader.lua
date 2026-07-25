@@ -27,6 +27,8 @@ local BLOXSTRIKE     = "https://api.luarmor.net/files/v4/loaders/33045b7872e8144
 local VD     = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/violence%20district.lua" 
 local OP1     = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20operation%20one%20FREE-obfuscated.lua" 
 local SHINDO     = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20shindo%20free-obfuscated.lua" 
+local PF          = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20phantom%20forces%20informant-obfuscated.lua" 
+
 
 
 
@@ -44,6 +46,10 @@ local Games = {
     [135434213652028]      = { name = "Bloxstrike",                        url = BLOXSTRIKE },
     [114234929420007]      = { name = "Bloxstrike",                        url = BLOXSTRIKE },
     [108194354348181]      = { name = "Bloxstrike",                        url = BLOXSTRIKE },
+
+     [292439477]      = { name = "Phantom forces",                        url = PF },
+    [1342733496]      = { name = "Phantom forces",                        url = PF },
+    [15829941479]      = { name = "Phantom forces",                        url = PF },
 
 
     [128736949265057] = { name = "gakuran",                                   url = GAK },
