@@ -28,6 +28,8 @@ local VD     = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/
 local OP1     = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20operation%20one%20FREE-obfuscated.lua" 
 local SHINDO     = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20shindo%20free-obfuscated.lua" 
 local PF          = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20phantom%20forces%20informant-obfuscated.lua" 
+local HAVOC          = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20havoc-obfuscated.lua" 
+
 
 
 
@@ -50,6 +52,9 @@ local Games = {
      [292439477]      = { name = "Phantom forces",                        url = PF },
     [1342733496]      = { name = "Phantom forces",                        url = PF },
     [15829941479]      = { name = "Phantom forces",                        url = PF },
+
+   [16530963934 ]      = { name = "HAVOC",                        url = HAVOC },
+    [13927562399]      = { name = "HAVOC",                        url = HAVOC },
 
 
     [128736949265057] = { name = "gakuran",                                   url = GAK },
