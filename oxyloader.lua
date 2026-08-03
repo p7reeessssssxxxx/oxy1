@@ -29,6 +29,8 @@ local OP1     = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs
 local SHINDO     = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20shindo%20free-obfuscated.lua" 
 local PF          = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20phantom%20forces%20informant-obfuscated.lua" 
 local HAVOC          = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20havoc-obfuscated.lua" 
+local pb     = "https://raw.githubusercontent.com/p7reeessssssxxxx/oxyfree/refs/heads/main/oxy%20hoops%20free-obfuscated.lua"
+
 
 
 
@@ -157,6 +159,22 @@ local Games = {
     [102123868363969] = { name = "Trade Realm",              url = VV },
     [121345602945775] = { name = "Matchmaking",              url = VV },
     [132224751888154] = { name = "UPDATE PLACE",             url = VV },
+
+    [80681221431821]  = { name = "Practical Basketball",              url = pb },
+    [85576197307056]  = { name = "Practical Basketball",              url = pb },
+    [115776365257536] = { name = "Practical Basketball",              url = pb },
+    [118669925076970] = { name = "Practical Basketball",              url = pb },
+    [138505112166361] = { name = "Practical Basketball",              url = pb },
+    [78438427735992]  = { name = "Practical Basketball",              url = pb },
+    [104645279125178] = { name = "Practical Basketball",              url = pb },
+    [79672855812610]  = { name = "Practical Basketball",              url = pb },
+    [119587547774646] = { name = "Practical Basketball",              url = pb },
+    [133311125103681] = { name = "Practical Basketball",              url = pb },
+    [113883239895081] = { name = "Practical Basketball",              url = pb },
+    [137939444694121] = { name = "Practical Basketball",              url = pb },
+    [106120159518740] = { name = "Practical Basketball",              url = pb },
+    [137269396533485] = { name = "Practical Basketball",              url = pb },
+    
 }
 
 
